@@ -42,6 +42,7 @@ class DataReader:
         self.num_data = len(self.files)
 
         self.file_objects = [nib.load(os.path.join(dir_name, self.files[i])) for i in range(self.num_data)]
+        #对于普通的MI来说，只有1类，但对于lablel来说确是有多个lable的可能
         self.num_labels = [self.file_objects[i].shape[3] if len(self.file_objects[i].shape) == 4
                            else 1
                            for i in range(self.num_data)]

@@ -18,6 +18,7 @@ reader_moving_image, reader_fixed_image, _, _ = helper.get_data_readers(config['
 ph_moving_image = tf.placeholder(tf.float32, [reader_moving_image.num_data]+reader_moving_image.data_shape+[1])
 ph_fixed_image = tf.placeholder(tf.float32, [reader_fixed_image.num_data]+reader_fixed_image.data_shape+[1])
 
+#minibatch_size 是2张图，ph表示place holder image
 reg_net = network.build_network(network_type=config['Network']['network_type'],
                                 minibatch_size=reader_moving_image.num_data,
                                 image_moving=ph_moving_image,
@@ -36,6 +37,7 @@ ddf = sess.run(reg_net.ddf, feed_dict=testFeed)
 helper.write_images(ddf, config['Inference']['dir_save'], 'ddf')
 
 # warp the test images
+#这个地方是moving的数据进行warp吗？应该是用fix的数据吧？error
 warped_images = app.warp_volumes_by_ddf(reader_moving_image.get_data(), ddf)
 helper.write_images(warped_images, config['Inference']['dir_save'], 'warped_image')
 

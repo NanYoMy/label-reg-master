@@ -37,12 +37,14 @@ class LocalNet(BaseNet):
         # defaults
         self.ddf_levels = [0, 1, 2, 3, 4] if ddf_levels is None else ddf_levels
         self.num_channel_initial = 32
-
+        #32,64,128,256,512
         nc = [int(self.num_channel_initial*(2**i)) for i in range(5)]
         h0, hc0 = layer.downsample_resnet_block(self.input_layer, 2, nc[0], k_conv0=[7, 7, 7], name='local_down_0')
         h1, hc1 = layer.downsample_resnet_block(h0, nc[0], nc[1], name='local_down_1')
         h2, hc2 = layer.downsample_resnet_block(h1, nc[1], nc[2], name='local_down_2')
         h3, hc3 = layer.downsample_resnet_block(h2, nc[2], nc[3], name='local_down_3')
+
+        #这个代码是对应文章中 fig.4 中的哪个卷积块？
         hm = [layer.conv3_block(h3, nc[3], nc[4], name='local_deep_4')]
 
         min_level = min(self.ddf_levels)
