@@ -56,7 +56,7 @@ class LocalNet(BaseNet):
         self.ddf = tf.reduce_sum(tf.stack([layer.ddf_summand(hm[4-idx], nc[idx], self.image_size, name='sum_%d' % idx)
                                            for idx in self.ddf_levels],
                                           axis=5), axis=5)
-        self.grid_warped = self.grid_ref + self.ddf
+        self.grid_warped = self.grid_ref + self.ddf#grid_ref是标准的mesh_grid，而ddf是两张图片的变化量
 
 
 class GlobalNet(BaseNet):

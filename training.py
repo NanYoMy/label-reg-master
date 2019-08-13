@@ -2,7 +2,7 @@ import tensorflow as tf
 import sys
 import random
 import time
-
+from tensorflow.python import  debug as tf_debug
 import labelreg.helpers as helper
 import labelreg.networks as network
 import labelreg.utils as util
@@ -23,12 +23,13 @@ reader_moving_image, reader_fixed_image, reader_moving_label, reader_fixed_label
 # 2 - graph
 ph_moving_image = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+reader_moving_image.data_shape+[1])
 ph_fixed_image = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+reader_fixed_image.data_shape+[1])
-ph_moving_affine = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+[1, 12])
+ph_moving_affine = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+[1, 12])#数据进行augment,4x4矩阵，但是最后四个参数为0001，所以一共12个参数
 ph_fixed_affine = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+[1, 12])
+# 通过设置affine参数进行数据的augmentation，moving和fixed的图片都进行了affine变化
 input_moving_image = util.warp_image_affine(ph_moving_image, ph_moving_affine)  # data augmentation
 input_fixed_image = util.warp_image_affine(ph_fixed_image, ph_fixed_affine)  # data augmentation
 
-# predicting ddf
+# predicting ddf,利用augmented之后的数据进行训练
 reg_net = network.build_network(network_type=config['Network']['network_type'],
                                 minibatch_size=config['Train']['minibatch_size'],
                                 image_moving=input_moving_image,
@@ -40,6 +41,7 @@ ph_fixed_label = tf.placeholder(tf.float32, [config['Train']['minibatch_size']]+
 input_moving_label = util.warp_image_affine(ph_moving_label, ph_moving_affine)  # data augmentation
 input_fixed_label = util.warp_image_affine(ph_fixed_label, ph_fixed_affine)  # data augmentation
 
+#这里reg_net中的DDF已经对label进行warping
 warped_moving_label = reg_net.warp_image(input_moving_label)  # warp the moving label with the predicted ddf
 
 loss_similarity, loss_regulariser = loss.build_loss(similarity_type=config['Loss']['similarity_type'],
@@ -64,6 +66,8 @@ train_indices = [i for i in range(reader_moving_label.num_data)]
 saver = tf.train.Saver(max_to_keep=1)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
+#tensorflow 的调试
+sess=tf_debug.LocalCLIDebugWrapperSession(sess)
 for step in range(config['Train']['total_iterations']):
 
     if step in range(0, config['Train']['total_iterations'], num_minibatch):
