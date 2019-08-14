@@ -76,6 +76,7 @@ for step in range(config['Train']['total_iterations']):
     minibatch_idx = step % num_minibatch
     case_indices = train_indices[
                     minibatch_idx*config['Train']['minibatch_size']:(minibatch_idx+1)*config['Train']['minibatch_size']]
+    #lable_indices也是随机获取得到某一类的某一种标签。每次再做配准的时候只做某一个中标签
     label_indices = [random.randrange(reader_moving_label.num_labels[i]) for i in case_indices]
 
     trainFeed = {ph_moving_image: reader_moving_image.get_data(case_indices),

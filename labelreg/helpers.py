@@ -42,6 +42,7 @@ class DataReader:
         self.num_data = len(self.files)
 
         self.file_objects = [nib.load(os.path.join(dir_name, self.files[i])) for i in range(self.num_data)]
+        [print(self.file_objects[itr].shape) for itr in range(self.num_data)]
         #对于普通的MI来说，只有1类，但对于lablel来说确是有多个lable的可能
         self.num_labels = [self.file_objects[i].shape[3] if len(self.file_objects[i].shape) == 4
                            else 1
@@ -58,12 +59,21 @@ class DataReader:
         # todo: check the supplied label_indices smaller than num_labels
         if label_indices is None:  # e.g. images only
             data = [np.asarray(self.file_objects[i].dataobj) for i in case_indices]
+
+
         else:
             if len(label_indices) == 1:
                 label_indices *= self.num_data
+            # for (i,j) in zip(case_indices,label_indices):
+            #     if self.num_labels[i]>1:
+            #         test=self.file_objects[i].dataobj[...,j]
+            #     else:
+            #         test=np.array((self.file_objects[i].dataobj))
+
             data = [self.file_objects[i].dataobj[..., j] if self.num_labels[i] > 1
                     else np.asarray(self.file_objects[i].dataobj)
                     for (i, j) in zip(case_indices, label_indices)]
+            [print(data[0][i].max()) for i in range(data[0].shape[0])] #查看每组数据的最大值，
         return np.expand_dims(np.stack(data, axis=0), axis=4)
 
 
