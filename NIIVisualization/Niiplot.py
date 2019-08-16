@@ -62,36 +62,34 @@ def next_slice(ax):
     ax.set_title(ax.index)
 if __name__== "__main__":
 
-    itk_img=sitk.ReadImage("../data/mr_train_1003_label.nii.gz")
-    myshow3d(itk_img)
+
+    nii=nib.load("../data/mr_train_1003_label.nii.gz")
+    data=nii.get_data()
+    get_bounding_box(data)
+    intensity=np.sort(np.unique(data))
+    print(intensity)
+    labels=[]
+    for i,gray in enumerate(intensity[1:]):
+        labels.append(np.copy(data))
+        labels[i]=np.where(labels[i]==gray,1,0)
+        # show_slice(labels[i][:,:,56])
+        # print(i)
+        # multi_slice_viewer(labels[i])
+        print(np.count_nonzero(labels[i]))
+    labels_4D=np.stack(labels,-1)
+    [multi_slice_viewer(labels_4D[...,i].T,is_lable=True) for i in range(labels_4D.shape[-1])]
+    [print(np.unique(labels_4D[..., i]))for i in range(labels_4D.shape[-1])]
 
 
-    # nii=nib.load("../data/mr_train_1003_label.nii.gz")
-    # data=nii.get_data()
-    # intensity=np.sort(np.unique(data))
-    # print(intensity)
-    # labels=[]
-    # for i,gray in enumerate(intensity[1:]):
-    #     labels.append(np.copy(data))
-    #     labels[i]=np.where(labels[i]==gray,1,0)
-    #     # show_slice(labels[i][:,:,56])
-    #     # print(i)
-    #     # multi_slice_viewer(labels[i])
-    #     print(np.count_nonzero(labels[i]))
-    # labels_4D=np.stack(labels,-1)
-    # [multi_slice_viewer(labels_4D[...,i].T,is_lable=True) for i in range(labels_4D.shape[-1])]
-    # [print(np.unique(labels_4D[..., i]))for i in range(labels_4D.shape[-1])]
-    #
-    #
-    #
-    #
-    # # data=data.T
-    # # data=read_img("../mr_train_1001_image.nii.gz")
-    # # show_img(data)
-    # # multi_slice_viewer(data)
-    # #label-reg的数据
-    # nii2=nib.load("../data/train/mr_labels/case000000.nii.gz")
-    # data2=nii2.get_data()
-    # # [multi_slice_viewer(data2[...,i]) for i in range(data2.shape[-1])]
-    # [print(np.unique(data2[..., i]))for i in range(data2.shape[-1])]
+
+
+    # data=data.T
+    # data=read_img("../mr_train_1001_image.nii.gz")
+    # show_img(data)
+    # multi_slice_viewer(data)
+    #label-reg的数据
+    nii2=nib.load("../data/train/mr_labels/case000000.nii.gz")
+    data2=nii2.get_data()
+    # [multi_slice_viewer(data2[...,i]) for i in range(data2.shape[-1])]
+    [print(np.unique(data2[..., i]))for i in range(data2.shape[-1])]
     print("test")
